@@ -17,5 +17,13 @@ module V2
         super
       end
     end
+
+    def respond_to_missing?(method_name, include_private = false)
+      if method_name[-1] == "="
+        true
+      else
+        @binding.local_variables.include?(method_name) || super
+      end
+    end
   end
 end
