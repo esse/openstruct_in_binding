@@ -4,34 +4,36 @@ require_relative 'binder_ruby_v1'
 require_relative 'binder_ruby_v2'
 require_relative 'binder_ruby_v3'
 require_relative 'binder_ruby_v4'
+[V1, V2, V3, V4].each do |version|
+  describe version::Binder do
 
-class TestBindings < Minitest::Test
-  def setup
-    @binding = GetBinding.get_binding
-  end
-  [V1, V2, V3, V4].each do |version|
-    define_method "test_#{version}_binder_can_read_val".to_sym do
-      binder = version::Binder.new(@binding)
-      assert_equal binder.a, 10
-      assert_equal binder.str, 'a1b2'
-      assert binder.respond_to?(:a)
-      assert binder.respond_to?(:str)
-      assert !binder.respond_to?(:bad_val)
-      assert binder.respond_to?(:"bad_val=")
+    before(:each) do
+      b = GetBinding.get_binding
+      @binder = version::Binder.new(b)
     end
 
-    define_method "test_#{version}_binder_can_set_val".to_sym do
-      binder = version::Binder.new(@binding)
-      binder.a = 10 # test for exception
-      binder.new_val = 10 # test for exception
-    end
+    describe "#{version}::Binder" do
+      it 'can read val' do
+        @binder.a.must_equal(10)
+        @binder.str.must_equal('a1b2')
+        @binder.must_respond_to(:a)
+        @binder.must_respond_to(:str)
+        @binder.wont_respond_to(:bad_val)
+        @binder.must_respond_to(:"bad_val=")
+      end
 
-    define_method "test_#{version}_binder_can_read_setted_val".to_sym do
-      binder = version::Binder.new(@binding)
-      binder.a = 'new_val'
-      binder.new_val = 10
-      assert_equal binder.a, 'new_val'
-      assert_equal binder.new_val, 10
+      it 'can set val' do
+        @binder.a = 10 # test for exception
+        @binder.new_val = 10 # test for exception
+      end
+
+      it 'can read setted val' do
+        @binder.a = 'new_val'
+        @binder.new_val = 10
+        @binder.a.must_equal('new_val')
+        @binder.new_val.must_equal(10)
+      end
+
     end
   end
 end
