@@ -18,7 +18,6 @@ def benchmark(namespace)
     x.report { n.times { OpenStruct.new(hash) } }
   end
 
-
   binder = namespace::Binder.new(b)
   struct = OpenStruct.new(hash)
 

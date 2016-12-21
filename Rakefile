@@ -5,5 +5,4 @@ namespace :test do
   end
 end
 
-
-task :default => 'test:test'
+task default: 'test:test'
