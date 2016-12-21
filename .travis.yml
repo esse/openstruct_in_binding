@@ -1,4 +1,5 @@
 language: ruby
+sudo: false
 dist: trusty
 rvm:
   - ruby-2.3.0
