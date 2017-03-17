@@ -1,4 +1,5 @@
 require 'benchmark'
+require 'benchmark/ips'
 require 'ostruct'
 require_relative 'binder_ruby_v1'
 require_relative 'binder_ruby_v2'
@@ -13,30 +14,42 @@ def benchmark(namespace)
 
   puts 'creation'
   n = 500_000
-  Benchmark.bm do |x|
-    x.report { n.times { namespace::Binder.new(b) } }
-    x.report { n.times { OpenStruct.new(hash) } }
+  Benchmark.ips do |x|
+    x.report("#{namespace} binder") { namespace::Binder.new(b) }
+    x.report("OpenStruct")  { OpenStruct.new(hash) }
+    x.compare!
   end
 
   binder = namespace::Binder.new(b)
   struct = OpenStruct.new(hash)
 
   puts 'get'
-  Benchmark.bm do |x|
-    x.report { n.times { binder.a; binder.str } }
-    x.report { n.times { struct.a; struct.str } }
+  Benchmark.ips do |x|
+    x.report("#{namespace} binder") { binder.a; binder.str }
+    x.report("OpenStruct") { struct.a; struct.str }
+    x.compare!
   end
+
+
+  binder = namespace::Binder.new(b)
+  struct = OpenStruct.new(hash)
 
   puts 'set'
-  Benchmark.bm do |x|
-    x.report { n.times { binder.a = 2; binder.string_2 = 'abc' } }
-    x.report { n.times { struct.a = 2; struct.string_2 = 'abc' } }
+  Benchmark.ips do |x|
+    x.report("#{namespace} binder") { binder.a = 2; binder.string_2 = 'abc' }
+    x.report("OpenStruct") { struct.a = 2; struct.string_2 = 'abc' }
+    x.compare!
   end
 
+
+  binder = namespace::Binder.new(b)
+  struct = OpenStruct.new(hash)
+
   puts 'set different'
-  Benchmark.bm do |x|
-    x.report { n.times { binder.send("var_#{n}=".to_sym, 1) } }
-    x.report { n.times { struct.send("var_#{n}=".to_sym, 1) } }
+  Benchmark.ips do |x|
+    x.report("#{namespace} binder") { binder.send("var_#{n}=".to_sym, 1) }
+    x.report("OpenStruct") { struct.send("var_#{n}=".to_sym, 1) }
+    x.compare!
   end
 
   print "\n\n\n"
